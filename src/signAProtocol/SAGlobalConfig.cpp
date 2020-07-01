@@ -1,11 +1,11 @@
 #include "SAGlobalConfig.h"
-#include <QMutex>
-#include <QHash>
 #include "SAGlobalConfigDefine.h"
-#include <QSet>
+#include "SAXMLConfigParser.h"
 #include <QDir>
 #include <QFileInfo>
-#include "SAXMLConfigParser.h"
+#include <QHash>
+#include <QMutex>
+#include <QSet>
 
 QString SAGlobalConfig::s_configFilePath = SAGlobalConfig::makeDefaultConfigPath();
 QString SAGlobalConfig::s_configFileName = "sa.config";
@@ -17,7 +17,8 @@ public:
     SAXMLConfigParser m_xmlConfig;
 };
 
-SAGlobalConfigPrivate::SAGlobalConfigPrivate(SAGlobalConfig* par):q_ptr(par)
+SAGlobalConfigPrivate::SAGlobalConfigPrivate(SAGlobalConfig* par)
+  : q_ptr(par)
 {
     SAGlobalConfig::makeDefaultConfigPath();
     m_xmlConfig.setFilePath(SAGlobalConfig::getConfigFullPath());
@@ -25,8 +26,9 @@ SAGlobalConfigPrivate::SAGlobalConfigPrivate(SAGlobalConfig* par):q_ptr(par)
 
 //============================================
 
-SAGlobalConfig::SAGlobalConfig(const QString &cfgPath):SAXMLConfigParser(cfgPath)
-  ,d_ptr(new SAGlobalConfigPrivate(this))
+SAGlobalConfig::SAGlobalConfig(const QString& cfgPath)
+  : SAXMLConfigParser(cfgPath)
+  , d_ptr(new SAGlobalConfigPrivate(this))
 {
 }
 
@@ -34,39 +36,35 @@ SAGlobalConfig::~SAGlobalConfig()
 {
 }
 
-
-#define SET_XX_CONFIG(type,TypeFunName) \
-    void SAGlobalConfig::TypeFunName(const QString& groupName,const QString& keyName,const type& val)\
-    {\
-        setValue(groupName,keyName,val);\
+#define SET_XX_CONFIG(type, TypeFunName)                                                                \
+    void SAGlobalConfig::TypeFunName(const QString& groupName, const QString& keyName, const type& val) \
+    {                                                                                                   \
+        setValue(groupName, keyName, val);                                                              \
     }
 
-#define GET_XX_CONFIG(type,TypeFunName,varToFunName) \
-    type SAGlobalConfig::TypeFunName(const QString &groupName, const QString &keyName,const type& defaultVal) const\
-    {\
-        QVariant var = getValue(groupName,keyName);\
-        if(!var.isValid())\
-        {\
-            return defaultVal;\
-        }\
-        bool isOK = false;\
-        int res = var.varToFunName(&isOK);\
-        if(!isOK)\
-        {\
-            return defaultVal;\
-        }\
-        return res;\
+#define GET_XX_CONFIG(type, TypeFunName, varToFunName)                                                               \
+    type SAGlobalConfig::TypeFunName(const QString& groupName, const QString& keyName, const type& defaultVal) const \
+    {                                                                                                                \
+        QVariant var = getValue(groupName, keyName);                                                                 \
+        if (!var.isValid()) {                                                                                        \
+            return defaultVal;                                                                                       \
+        }                                                                                                            \
+        bool isOK = false;                                                                                           \
+        int res = var.varToFunName(&isOK);                                                                           \
+        if (!isOK) {                                                                                                 \
+            return defaultVal;                                                                                       \
+        }                                                                                                            \
+        return res;                                                                                                  \
     }
 
-#define GET_XX_CONFIG_Arg0(type,TypeFunName,varToFunName) \
-    type SAGlobalConfig::TypeFunName(const QString &groupName, const QString &keyName,const type& defaultVal) const\
-    {\
-        QVariant var = getValue(groupName,keyName);\
-        if(!var.isValid())\
-        {\
-            return defaultVal;\
-        }\
-        return var.varToFunName();\
+#define GET_XX_CONFIG_Arg0(type, TypeFunName, varToFunName)                                                          \
+    type SAGlobalConfig::TypeFunName(const QString& groupName, const QString& keyName, const type& defaultVal) const \
+    {                                                                                                                \
+        QVariant var = getValue(groupName, keyName);                                                                 \
+        if (!var.isValid()) {                                                                                        \
+            return defaultVal;                                                                                       \
+        }                                                                                                            \
+        return var.varToFunName();                                                                                   \
     }
 ///
 /// \brief 获取uint值
@@ -76,14 +74,14 @@ SAGlobalConfig::~SAGlobalConfig()
 /// 如果没有对应的索引或目录将返回默认值
 /// \return 获取对应的设定值，如果没有对应的索引或索引对应的值无法转为int，将返回默认值
 ///
-GET_XX_CONFIG(unsigned int,getUIntValue,toUInt)
+GET_XX_CONFIG(unsigned int, getUIntValue, toUInt)
 ///
 /// \brief 设置int值
 /// \param content 目录
 /// \param key 索引
 /// \param var 值
 ///
-SET_XX_CONFIG(unsigned int,setUIntValue)
+SET_XX_CONFIG(unsigned int, setUIntValue)
 
 ///
 /// \brief 获取int值
@@ -93,8 +91,7 @@ SET_XX_CONFIG(unsigned int,setUIntValue)
 /// 如果没有对应的索引或目录将返回默认值
 /// \return 获取对应的设定值，如果没有对应的索引或索引对应的值无法转为int，将返回默认值
 ///
-GET_XX_CONFIG(int,getIntValue,toInt)
-
+GET_XX_CONFIG(int, getIntValue, toInt)
 
 ///
 /// \brief 设置int值
@@ -102,7 +99,7 @@ GET_XX_CONFIG(int,getIntValue,toInt)
 /// \param key 索引
 /// \param var 值
 ///
-SET_XX_CONFIG(int,setIntValue)
+SET_XX_CONFIG(int, setIntValue)
 
 ///
 /// \brief 获取double值
@@ -112,14 +109,14 @@ SET_XX_CONFIG(int,setIntValue)
 /// 如果没有对应的索引或目录将返回默认值
 /// \return 获取对应的设定值，如果没有对应的索引或索引对应的值无法转为double，将返回默认值
 ///
-GET_XX_CONFIG(double,getDoubleValue,toDouble)
+GET_XX_CONFIG(double, getDoubleValue, toDouble)
 ///
 /// \brief 设置int值
 /// \param content 目录
 /// \param key 索引
 /// \param var 值
 ///
-SET_XX_CONFIG(double,setDoubleValue)
+SET_XX_CONFIG(double, setDoubleValue)
 
 ///
 /// \brief 获取double值
@@ -129,14 +126,14 @@ SET_XX_CONFIG(double,setDoubleValue)
 /// 如果没有对应的索引或目录将返回默认值
 /// \return 获取对应的设定值，如果没有对应的索引或索引对应的值无法转为double，将返回默认值
 ///
-GET_XX_CONFIG(float,getFloatValue,toFloat)
+GET_XX_CONFIG(float, getFloatValue, toFloat)
 ///
 /// \brief 设置int值
 /// \param content 目录
 /// \param key 索引
 /// \param var 值
 ///
-SET_XX_CONFIG(float,setFloatValue)
+SET_XX_CONFIG(float, setFloatValue)
 
 ///
 /// \brief 获取double值
@@ -146,14 +143,14 @@ SET_XX_CONFIG(float,setFloatValue)
 /// 如果没有对应的索引或目录将返回默认值
 /// \return 获取对应的设定值，如果没有对应的索引或索引对应的值无法转为double，将返回默认值
 ///
-GET_XX_CONFIG(qlonglong,getLongLongValue,toLongLong)
+GET_XX_CONFIG(qlonglong, getLongLongValue, toLongLong)
 ///
 /// \brief 设置int值
 /// \param content 目录
 /// \param key 索引
 /// \param var 值
 ///
-SET_XX_CONFIG(qlonglong,setLongLongValue)
+SET_XX_CONFIG(qlonglong, setLongLongValue)
 
 ///
 /// \brief 获取QString值
@@ -163,33 +160,31 @@ SET_XX_CONFIG(qlonglong,setLongLongValue)
 /// 如果没有对应的索引或目录将返回默认值
 /// \return 获取对应的设定值，如果没有对应的索引或索引对应的值无法转为double，将返回默认值
 ///
-GET_XX_CONFIG_Arg0(QString,getStringValue,toString)
-///
-/// \brief 设置QString值
-/// \param content 目录
-/// \param key 索引
-/// \param var 值
-///
-SET_XX_CONFIG(QString,setStringValue)
+GET_XX_CONFIG_Arg0(QString, getStringValue, toString)
+    ///
+    /// \brief 设置QString值
+    /// \param content 目录
+    /// \param key 索引
+    /// \param var 值
+    ///
+    SET_XX_CONFIG(QString, setStringValue)
 
-
-
-///
-/// \brief 获取全局唯一单例
-/// \return 全局唯一单例指针
-///
-SAGlobalConfig& SAGlobalConfig::getInstance()
+    ///
+    /// \brief 获取全局唯一单例
+    /// \return 全局唯一单例指针
+    ///
+    SAGlobalConfig& SAGlobalConfig::getInstance()
 {
     static SAGlobalConfig s_g_cfg(getConfigFullPath());
     return s_g_cfg;
 }
 
-
 ///
 /// \brief 获取sa的配置文件目录
 /// \return 配置文件目录
 ///
-QString SAGlobalConfig::getConfigPath()
+QString
+SAGlobalConfig::getConfigPath()
 {
     return s_configFilePath;
 }
@@ -198,30 +193,29 @@ QString SAGlobalConfig::getConfigPath()
 /// \brief 获取默认config path
 /// \return 如果目录没有会尝试创建一个
 ///
-QString SAGlobalConfig::makeDefaultConfigPath()
+QString
+SAGlobalConfig::makeDefaultConfigPath()
 {
     QString path = QDir::currentPath() + QDir::separator() + "config";
-    if(!QFileInfo::exists(path))
-    {
+    if (!QFileInfo::exists(path)) {
         QDir dir(path);
         dir.mkpath(path);
     }
-    return std::move(path);
+    return std::move(path); //它唯一的功能是将一个左值强制转化为右值引用，继而可以通过右值引用使用该值，以用于移动语义
+                            //std::move是将对象的状态或者所有权从一个对象转移到另一个对象，只是转移，没有内存的搬迁或者内存拷贝所以可以提高利用效率,改善性能.。
 }
 ///
 /// \brief 获取配置文件名
 /// \return
 ///
-QString SAGlobalConfig::getConfigFileName()
+QString
+SAGlobalConfig::getConfigFileName()
 {
     return s_configFileName;
 }
 
-QString SAGlobalConfig::getConfigFullPath()
+QString
+SAGlobalConfig::getConfigFullPath()
 {
-    return s_configFilePath +  QDir::separator() + s_configFileName;
+    return s_configFilePath + QDir::separator() + s_configFileName;
 }
-
-
-
-

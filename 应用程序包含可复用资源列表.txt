@@ -1,0 +1,3 @@
+1.通用带RibbonBar 和 dockwidget 的通用框架。（RaibbonBar.pro 和 mainwidget，mainwidgetprivate类）
+2.qt xml 协议 读写通用类。
+3.qt plugin管理，qss管理。
