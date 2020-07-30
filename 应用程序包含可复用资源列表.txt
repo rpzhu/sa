@@ -1,3 +1,5 @@
-1.通用带RibbonBar 和 dockwidget 的通用框架。（RaibbonBar.pro 和 mainwidget，mainwidgetprivate类）
-2.qt xml 协议 读写通用类。
-3.qt plugin管理，qss管理。
+1.通用带RibbonBar 和 dockwidget 的通用框架。（RaibbonBar.pro 和 signA中的 mainwidget--onActionSetDefalutDockPosTriggered()，mainwidgetprivate类）
+2.qt xml 协议 读写通用类（signAProtocol.pro）。
+3.qt plugin管理（SAPluginManager.h），qss管理（SAThemeManager.h）。
+4.设置最近打开路径--（mainwindow.cpp updateRecentOpenFilesMenu()）;
+5.qt 属性窗口参考plot config窗口 。 （SAFigureSetWidget--》--》SAChartNormalSetWidget   ，SAPropertySetDialog.h ， SAPropertySetWidget.h）

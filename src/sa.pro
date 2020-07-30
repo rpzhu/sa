@@ -1,3 +1,5 @@
+#8.26w行代码， 包括插件。
+
 TEMPLATE = subdirs
 SUBDIRS = \
           signAProtocol\

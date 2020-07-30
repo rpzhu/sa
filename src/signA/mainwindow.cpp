@@ -40,7 +40,7 @@
 #include "SAProjectInfomationSetDialog.h"
 
 #include <PickCurveDataModeSetDialog.h>
-#include <SAPropertySetDialog.h>
+//#include <SAPropertySetDialog.h>
 
 // |------widget
 #include "SAChartDatasViewWidget.h"
@@ -110,32 +110,32 @@ MainWindow::MainWindow(QWidget* parent)
   , m_nUserChartCount(0)
 {
     saAddLog("start app");
-
+    //要是想仅仅重复利用界面不包括信号和槽，只需要看ui->init(),loadSttting函数就行。
     saStartElapsed("start main app init");
 #ifdef SA_USE_RIBBON_UI
     ui->init();
 #else
     ui->setupUi(this);
 #endif
-    init();   //状态栏的进度条
+    //init();   //状态栏的进度条
     initUI(); //连接信号与槽函数， 并且给部分action设置分组
-              // initUIReflection();
+    initUIReflection();
     saElapsed("init ui and menu");
 
     saStartElapsed("start load plugin");
 #ifndef SA_USE_RIBBON_UI
     ui->toolBar_chartSet->setEnabled(false);
 #endif
-    // initPlugin();
+    initPlugin();
     saElapsed("loaded plugins");
 
-    // initTheme();
+    initTheme();
 
     saStartElapsed("start load setting");
-    //loadSetting();
+    loadSetting();
     saElapsed("loaded settings");
 
-    // showNormalMessageInfo(QStringLiteral("程序初始化完成"));
+    //    showNormalMessageInfo(QStringLiteral("程序初始化完成"));
 }
 
 ///
@@ -442,20 +442,21 @@ MainWindow::initUIReflection()
 }
 
 ///
-/// \brief 重置布局
+/// NOTE:\brief 重置布局 ui 布局函数在这里
+///
 ///
 void
 MainWindow::onActionSetDefalutDockPosTriggered()
 {
-    addDockWidget(Qt::LeftDockWidgetArea, ui->dockWidget_valueManage); //从最左上角的dock开始布置，先把列布置完
+    addDockWidget(Qt::LeftDockWidgetArea, ui->dockWidget_valueManage); //从最左上角的dock开始布置，先把列布置完（左往右）
     splitDockWidget(ui->dockWidget_valueManage, ui->dockWidget_main, Qt::Horizontal);
-    splitDockWidget(ui->dockWidget_main, ui->dockWidget_plotLayer, Qt::Horizontal);
-    splitDockWidget(ui->dockWidget_valueManage, ui->dockWidget_windowList, Qt::Vertical);
-    splitDockWidget(ui->dockWidget_main, ui->dockWidget_chartDataViewer, Qt::Vertical);
-    splitDockWidget(ui->dockWidget_plotLayer, ui->dockWidget_DataFeature, Qt::Vertical);
-    tabifyDockWidget(ui->dockWidget_main, ui->dockWidget_valueViewer);
-    tabifyDockWidget(ui->dockWidget_chartDataViewer, ui->dockWidget_message);
-    tabifyDockWidget(ui->dockWidget_windowList, ui->dockWidget_plotSet);
+    splitDockWidget(ui->dockWidget_main, ui->dockWidget_plotLayer, Qt::Horizontal);       //Layout 窗口在Main右边。
+    splitDockWidget(ui->dockWidget_valueManage, ui->dockWidget_windowList, Qt::Vertical); //valueMange窗口下边是windowlist窗口。
+    splitDockWidget(ui->dockWidget_main, ui->dockWidget_chartDataViewer, Qt::Vertical);   //main窗口下边是chartdata窗口
+    splitDockWidget(ui->dockWidget_plotLayer, ui->dockWidget_DataFeature, Qt::Vertical);  //layout窗口下边是datafeature窗口
+    tabifyDockWidget(ui->dockWidget_main, ui->dockWidget_valueViewer);                    // main和value view窗口,合并窗口为tab样式
+    tabifyDockWidget(ui->dockWidget_chartDataViewer, ui->dockWidget_message);             //chardata和message窗口，合并为tab样式。
+    tabifyDockWidget(ui->dockWidget_windowList, ui->dockWidget_plotSet);                  //window list 和plotconfig 窗口合并为tab样式。
     ui->dockWidget_valueManage->show();
     //ui->dockWidget_valueManage->resize(QSize(500,ui->dockWidget_valueManage->height()));
     ui->dockWidget_plotSet->show();
@@ -466,8 +467,8 @@ MainWindow::onActionSetDefalutDockPosTriggered()
     ui->dockWidget_valueViewer->show();
     ui->dockWidget_main->show();
     ui->dockWidget_message->show();
-    ui->dockWidget_chartDataViewer->raise();
-    ui->dockWidget_main->raise();
+    ui->dockWidget_chartDataViewer->raise(); //使得窗口堆叠在最前面
+    ui->dockWidget_main->raise();            //使得窗口堆叠在最前面。
 }
 ///
 /// \brief 标签模式
@@ -778,21 +779,21 @@ MainWindow::loadSetting()
     QVariant var = saConfig.getValue("mainWindow", "geometry");
     bool isLoadGeometry = false;
     if (var.isValid()) {
-        isLoadGeometry |= restoreGeometry(var.toByteArray());
+        isLoadGeometry |= restoreGeometry(var.toByteArray()); //恢复窗口的几何信息
     }
     var = saConfig.getValue("mainWindow", "windowState");
     if (var.isValid()) {
-        isLoadGeometry |= restoreState(var.toByteArray());
+        isLoadGeometry |= restoreState(var.toByteArray()); //恢复窗口的状态。
     }
     if (!isLoadGeometry) {
-        showMaximized();
+        showMaximized(); //最大化
     }
     var = saConfig.getValue("skin", "name");
     if (var.isValid())
-        setSkin(var.toString());
+        setSkin(var.toString()); //设置皮肤
     else
         setSkin("normal");
-    loadRecentPath();
+    loadRecentPath(); //设置最近访问路径。
 }
 ///
 /// \brief 保存设置
@@ -847,6 +848,7 @@ MainWindow::updateRecentOpenFilesMenu()
             a->deleteLater();
         }
     });
+    //给每一个action 连接信号与槽函数
     std::for_each(m_recentOpenFiles.begin(), m_recentOpenFiles.end(), [&](const QString& strPath) {
         QAction* act = new QAction(strPath, this);
         connect(act, &QAction::triggered, this, [this, act](bool on) {
